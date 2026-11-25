@@ -129,7 +129,7 @@
        ============================================================ */
     #tab-bar {
       position: sticky;
-      top: 134px; /* ヘッダー高さに合わせて調整（JS で動的設定） */
+      top: -9999px; /* adjustTabTop() で動的に設定される（初期値は画面外でフラッシュ防止） */
       z-index: 90;
       background: var(--color-primary-light);
       border-bottom: 2px solid rgba(255,255,255,.12);
@@ -180,8 +180,6 @@
     /* 検索中バナー */
     #search-banner {
       display: none;
-      align-items: center;
-      gap: 8px;
       background: var(--color-primary);
       color: var(--color-white);
       font-size: 13px;
@@ -189,7 +187,11 @@
       border-radius: var(--radius);
       margin-bottom: 16px;
     }
-    #search-banner.visible { display: flex; }
+    #search-banner.visible {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     #search-banner strong { color: var(--color-accent); }
 
     /* カテゴリセクション */
@@ -550,7 +552,7 @@
      ============================================================ -->
 <header id="site-header">
   <div class="header-inner">
-    <a href="https://www.ibm.com/products/bob" target="_blank" rel="noopener" class="header-logo-link" aria-label="IBM Bob 製品ページ">
+    <a href="https://www.ibm.com/products/ibm-bob" target="_blank" rel="noopener" class="header-logo-link" aria-label="IBM Bob 製品ページ">
       <img src="bob.svg" alt="IBM Bob" class="header-logo">
     </a>
     <div class="header-content">
@@ -856,6 +858,11 @@
   }
   adjustTabTop();
   window.addEventListener('resize', adjustTabTop);
+  // bob.svg の読み込み完了後に再調整（画像読み込みでヘッダー高さが変わる場合）
+  var headerLogo = document.querySelector('.header-logo');
+  if (headerLogo) {
+    headerLogo.addEventListener('load', adjustTabTop);
+  }
 
   /* ============================================================
      タブ切り替え
@@ -923,6 +930,9 @@
         item.classList.remove('hidden', 'open');
       });
 
+      // 検索中に style.display で非表示にしたセクションをリセット
+      sections.forEach(function(sec) { sec.style.display = ''; });
+
       // アクティブなタブのセクションのみ表示
       var activeTab = document.querySelector('.tab-btn.active');
       if (activeTab) activateTab(activeTab.dataset.tab);
@@ -944,8 +954,8 @@
         item.classList.remove('hidden');
         hitCount++;
       } else {
-        item.classList.add('hidden', 'open');
         item.classList.remove('open');
+        item.classList.add('hidden');
       }
     });
 
@@ -990,7 +1000,7 @@
         },
         {
           label: 'Bob が意図しない変更をした',
-          solution: '<strong>Ctrl + Z</strong>（Mac: <strong>Cmd + Z</strong>）で変更を元に戻せます。複数ファイルにわたる変更には、Bob のチェックポイント機能を使って特定時点まで一括で巻き戻すことができます。'
+          solution: 'Ctrl + Z（Mac: Cmd + Z）で変更を元に戻せます。複数ファイルにわたる変更には、Bob のチェックポイント機能を使って特定時点まで一括で巻き戻すことができます。'
         },
         {
           label: 'MCP サーバーに接続できない',
@@ -1019,7 +1029,7 @@
           if (choice.solution) {
             tsQuestion.textContent = '✅ 解決策';
             tsChoices.innerHTML = '';
-            tsSolution.innerHTML = choice.solution;
+            tsSolution.textContent = choice.solution;
             tsSolution.hidden = false;
             tsReset.hidden = false;
           } else if (choice.next) {
@@ -1086,17 +1096,19 @@
       overlay.setAttribute('aria-hidden', 'true');
     }
 
+    var currentHits = [];
+
     function renderResults(query) {
       cmdResults.innerHTML = '';
       activeIdx = -1;
       var lq = query.toLowerCase();
-      var hits = query
+      currentHits = query
         ? faqData.filter(function(d) { return d.question.toLowerCase().includes(lq); })
         : faqData;
 
-      cmdEmpty.hidden = hits.length > 0;
+      cmdEmpty.hidden = currentHits.length > 0;
 
-      hits.forEach(function(d, i) {
+      currentHits.forEach(function(d, i) {
         var li = document.createElement('li');
         li.className = 'cmd-result-item';
         li.setAttribute('role', 'option');
@@ -1108,9 +1120,6 @@
         li.addEventListener('mouseenter', function() { setActive(i); });
         cmdResults.appendChild(li);
       });
-
-      // hits を外部スコープで参照できるよう保持
-      cmdResults._hits = hits;
     }
 
     function escHtml(str) {
@@ -1123,10 +1132,22 @@
         el.setAttribute('aria-selected', i === idx ? 'true' : 'false');
       });
       activeIdx = idx;
+      if (idx >= 0 && items[idx]) {
+        items[idx].scrollIntoView({ block: 'nearest' });
+      }
     }
 
     function selectItem(d) {
       closePalette();
+      // 検索状態をクリア（検索中にパレットから選択した場合の破損状態を防ぐ）
+      if (searchInput.value) {
+        searchInput.value = '';
+        tabBar.style.display = '';
+        searchBanner.classList.remove('visible');
+        noResults.classList.remove('visible');
+        allItems.forEach(function(item) { item.classList.remove('hidden', 'open'); });
+        sections.forEach(function(sec) { sec.style.display = ''; });
+      }
       // タブ切替
       activateTab(d.tabId);
       // DOM にスクロール & アコーディオンを開く
@@ -1145,16 +1166,15 @@
 
     cmdInput.addEventListener('keydown', function(e) {
       var items = cmdResults.querySelectorAll('.cmd-result-item');
-      var hits  = cmdResults._hits || [];
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         setActive(Math.min(activeIdx + 1, items.length - 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setActive(Math.max(activeIdx - 1, 0));
+        setActive(Math.max(activeIdx - 1, -1));
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (activeIdx >= 0 && hits[activeIdx]) selectItem(hits[activeIdx]);
+        if (activeIdx >= 0 && currentHits[activeIdx]) selectItem(currentHits[activeIdx]);
       } else if (e.key === 'Escape') {
         closePalette();
       }
