@@ -129,7 +129,8 @@
        ============================================================ */
     #tab-bar {
       position: sticky;
-      top: -9999px; /* adjustTabTop() で動的に設定される（初期値は画面外でフラッシュ防止） */
+      top: 0; /* adjustTabTop() で動的に設定される */
+      visibility: hidden; /* JS 実行前のちらつきを防ぐ */
       z-index: 90;
       background: var(--color-primary-light);
       border-bottom: 2px solid rgba(255,255,255,.12);
@@ -853,8 +854,9 @@
      ヘッダー高さに合わせてタブバーの top を動的に設定
      ============================================================ */
   function adjustTabTop() {
-    var h = document.getElementById('site-header').offsetHeight;
-    document.getElementById('tab-bar').style.top = h + 'px';
+    var tabBar = document.getElementById('tab-bar');
+    tabBar.style.top = document.getElementById('site-header').offsetHeight + 'px';
+    tabBar.style.visibility = 'visible';
   }
   adjustTabTop();
   window.addEventListener('resize', adjustTabTop);
@@ -933,7 +935,8 @@
       // 検索中に style.display で非表示にしたセクションをリセット
       sections.forEach(function(sec) { sec.style.display = ''; });
 
-      // アクティブなタブのセクションのみ表示
+      // 検索中に追加した active を明示的に除去してからタブ表示に戻す
+      sections.forEach(function(sec) { sec.classList.remove('active'); });
       var activeTab = document.querySelector('.tab-btn.active');
       if (activeTab) activateTab(activeTab.dataset.tab);
       return;
@@ -1059,7 +1062,7 @@
     var cmdEmpty   = document.getElementById('cmd-empty');
     var activeIdx  = -1;
 
-    // FAQ データを DOM から収集
+    // FAQ データを DOM から収集（ページ読み込み時に1回のみ実行。動的追加された項目は反映されない）
     var faqData = [];
     document.querySelectorAll('.category-section').forEach(function(sec) {
       var tabId    = sec.id.replace('cat-', '');
@@ -1089,6 +1092,13 @@
       renderResults('');
       cmdInput.focus();
     }
+
+    // フォーカストラップ: Tab キーをパレット内に閉じ込める
+    palette.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+      }
+    });
 
     function closePalette() {
       overlay.classList.remove('open');
@@ -1150,14 +1160,15 @@
       }
       // タブ切替
       activateTab(d.tabId);
-      // DOM にスクロール & アコーディオンを開く
-      setTimeout(function() {
-        // 同セクション内の open を閉じる
-        var sec = d.item.closest('.category-section');
-        sec.querySelectorAll('.faq-item.open').forEach(function(el) { el.classList.remove('open'); });
-        d.item.classList.add('open');
-        d.item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 50);
+      // DOM にスクロール & アコーディオンを開く（描画サイクルに同期するため rAF を2重ネスト）
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          var sec = d.item.closest('.category-section');
+          sec.querySelectorAll('.faq-item.open').forEach(function(el) { el.classList.remove('open'); });
+          d.item.classList.add('open');
+          d.item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      });
     }
 
     cmdInput.addEventListener('input', function() {
@@ -1176,6 +1187,7 @@
         e.preventDefault();
         if (activeIdx >= 0 && currentHits[activeIdx]) selectItem(currentHits[activeIdx]);
       } else if (e.key === 'Escape') {
+        e.stopPropagation(); // document リスナーへのバブリングを防ぎ2重呼び出しを回避
         closePalette();
       }
     });
