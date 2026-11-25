@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bob FAQ — よくある質問</title>
+  <style>
+    /* ============================================================
+       デザインガイドライン CSS カスタムプロパティ
+       ============================================================ */
+    :root {
+      --color-primary:       #0f62fe;
+      --color-primary-light: #0353e9;
+      --color-primary-hover: #0043ce;
+      --color-accent:        #a56eff;
+      --color-bg:            #FFFFFF;
+      --color-bg-muted:      #F4F7FB;
+      --color-border:        #DDE4EE;
+      --color-text:          #1A202C;
+      --color-text-muted:    #5A6A82;
+      --color-white:         #FFFFFF;
+      --radius:              8px;
+      --shadow-sm:           0 1px 4px rgba(15,98,254,.08);
+      --shadow-md:           0 4px 16px rgba(15,98,254,.12);
+      --transition:          .2s ease;
+      --container:           800px;
+    }
+
+    /* ============================================================
+       リセット & ベース
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-text);
+      background: var(--color-bg-muted);
+    }
+
+    /* ============================================================
+       追従ヘッダー
+       ============================================================ */
+    #site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .header-inner {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 20px 24px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-logo-link {
+      flex-shrink: 0;
+      opacity: 1;
+      transition: opacity var(--transition);
+    }
+    .header-logo-link:hover { opacity: .75; }
+
+    .header-logo {
+      display: block;
+      height: 44px;
+      width: auto;
+    }
+
+    .header-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-white);
+      letter-spacing: .02em;
+      margin-bottom: 12px;
+    }
+    .header-title span {
+      color: var(--color-accent);
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 14px;
+    }
+
+    /* 検索バー */
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted);
+      pointer-events: none;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.12);
+      color: var(--color-white);
+      outline: none;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    #searchInput::placeholder { color: rgba(255,255,255,.5); }
+    #searchInput:focus {
+      border-color: var(--color-accent);
+      background: rgba(255,255,255,.18);
+    }
+
+    /* ============================================================
+       追従タブバー
+       ============================================================ */
+    #tab-bar {
+      position: sticky;
+      top: 134px; /* ヘッダー高さに合わせて調整（JS で動的設定） */
+      z-index: 90;
+      background: var(--color-primary-light);
+      border-bottom: 2px solid rgba(255,255,255,.12);
+    }
+
+    .tab-list {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .tab-list::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      color: rgba(255,255,255,.7);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+      margin-bottom: -2px;
+    }
+    .tab-btn:hover { color: var(--color-white); }
+    .tab-btn.active {
+      color: var(--color-white);
+      border-bottom-color: var(--color-accent);
+    }
+
+    /* ============================================================
+       メインコンテンツ
+       ============================================================ */
+    main {
+      max-width: var(--container);
+      margin: 28px auto 56px;
+      padding: 0 16px;
+    }
+
+    /* 検索中バナー */
+    #search-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-primary);
+      color: var(--color-white);
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    #search-banner.visible { display: flex; }
+    #search-banner strong { color: var(--color-accent); }
+
+    /* カテゴリセクション */
+    .category-section { display: none; }
+    .category-section.active { display: block; }
+
+    .category-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+      padding-left: 2px;
+    }
+
+    /* ============================================================
+       アコーディオン
+       ============================================================ */
+    .faq-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+
+    .faq-item {
+      background: var(--color-bg);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition), border-color var(--transition);
+    }
+    .faq-item.open {
+      border-left: 3px solid var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+    .faq-item.hidden { display: none; }
+
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--color-text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .faq-question:hover { background: var(--color-bg-muted); }
+    .faq-item.open .faq-question { color: var(--color-primary); }
+
+    /* +/− アイコン（CSS のみ） */
+    .faq-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-border);
+      position: relative;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    }
+    .faq-icon::before,
+    .faq-icon::after {
+      content: '';
+      position: absolute;
+      background: var(--color-text-muted);
+      border-radius: 2px;
+      transition: background var(--transition), transform var(--transition), opacity var(--transition);
+    }
+    /* 横棒 */
+    .faq-icon::before {
+      width: 10px; height: 1.5px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    /* 縦棒 */
+    .faq-icon::after {
+      width: 1.5px; height: 10px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .faq-item.open .faq-icon {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+    .faq-item.open .faq-icon::before,
+    .faq-item.open .faq-icon::after { background: var(--color-white); }
+    .faq-item.open .faq-icon::after { transform: translate(-50%, -50%) rotate(90deg); opacity: 0; }
+
+    /* 回答エリア */
+    .faq-answer {
+      display: none;
+      padding: 0 20px 18px 20px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--color-text);
+      border-top: 1px solid var(--color-border);
+    }
+    .faq-answer p { margin-top: 12px; }
+    .faq-item.open .faq-answer { display: block; }
+
+    .faq-answer ul {
+      padding-left: 20px;
+      margin-top: 10px;
+    }
+    .faq-answer ul li { margin-bottom: 5px; }
+    .faq-answer code {
+      font-size: 13px;
+      background: var(--color-bg-muted);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .faq-answer strong { font-weight: 600; color: var(--color-primary); }
+
+    /* ============================================================
+       検索ヒット0件
+       ============================================================ */
+    #no-results {
+      display: none;
+      text-align: center;
+      padding: 56px 0;
+      color: var(--color-text-muted);
+      font-size: 14px;
+    }
+    #no-results.visible { display: block; }
+
+    /* ============================================================
+       フッター
+       ============================================================ */
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      border-top: 1px solid var(--color-border);
+      padding: 20px 16px;
+      background: var(--color-bg);
+    }
+
+    /* ============================================================
+       レスポンシブ（768px 以下）
+       ============================================================ */
+    @media (max-width: 768px) {
+      .header-inner { padding: 16px 16px 12px; gap: 12px; }
+      .header-logo { height: 36px; }
+      .header-title { font-size: 18px; margin-bottom: 10px; }
+      .tab-list { padding: 0 12px; }
+      .tab-btn { padding: 10px 14px; font-size: 13px; }
+      main { margin-top: 20px; padding: 0 12px; }
+      .faq-question { font-size: 14px; padding: 14px 16px; }
+      .faq-answer { padding: 0 16px 14px; font-size: 13px; }
+      #theme-toggle { font-size: 14px; padding: 5px 8px; }
+    }
+
+  /* ============================================================
+     対話型トラブルシューティングウィザード
+     ============================================================ */
+  #ts-wizard {
+    margin-bottom: 24px;
+  }
+  #ts-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .ts-question-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 14px;
+  }
+  .ts-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ts-choice-btn {
+    background: var(--color-bg-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 10px 16px;
+    text-align: left;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .ts-choice-btn:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+  }
+  .ts-solution {
+    background: var(--color-bg-muted);
+    border-left: 3px solid var(--color-primary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    color: var(--color-text);
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+  }
+  .ts-reset-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 7px 14px;
+    transition: background var(--transition), color var(--transition);
+  }
+  .ts-reset-btn:hover {
+    background: var(--color-bg-muted);
+    color: var(--color-text);
+  }
+
+  /* ============================================================
+     ダークテーマ
+     ============================================================ */
+  [data-theme="dark"] {
+    --color-primary:       #1a73e8;
+    --color-primary-light: #4285f4;
+    --color-primary-hover: #5094f5;
+    --color-accent:        #c084fc;
+    --color-bg:            #161616;
+    --color-bg-muted:      #262626;
+    --color-border:        #393939;
+    --color-text:          #f4f4f4;
+    --color-text-muted:    #a8b3c1;
+    --color-white:         #f4f4f4;
+    --shadow-sm:           0 1px 4px rgba(0,0,0,.3);
+    --shadow-md:           0 4px 16px rgba(0,0,0,.4);
+  }
+
+  #theme-toggle {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: var(--radius);
+    color: var(--color-white);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 6px 10px;
+    transition: background var(--transition), border-color var(--transition);
+    flex-shrink: 0;
+  }
+  #theme-toggle:hover {
+    background: rgba(255,255,255,.12);
+    border-color: rgba(255,255,255,.6);
+  }
+
+/* ============================================================
+   コマンドパレット
+   ============================================================ */
+.cmd-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 200;
+}
+.cmd-overlay.open { display: block; }
+
+.cmd-palette {
+  position: fixed;
+  top: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(640px, 92vw);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) * 1.5);
+  box-shadow: 0 8px 40px rgba(0,0,0,.2);
+  z-index: 201;
+  overflow: hidden;
+}
+.cmd-palette[hidden] { display: none; }
+
+.cmd-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.cmd-search-icon { color: var(--color-text-muted); flex-shrink: 0; }
+
+.cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 15px;
+  outline: none;
+}
+.cmd-input::placeholder { color: var(--color-text-muted); }
+
+.cmd-esc-hint {
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+.cmd-results {
+  list-style: none;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.cmd-result-item {
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 10px 14px;
+}
+.cmd-result-item:hover,
+.cmd-result-item[aria-selected="true"] {
+  background: var(--color-primary);
+  color: #fff;
+}
+.cmd-result-item:hover .cmd-result-category,
+.cmd-result-item[aria-selected="true"] .cmd-result-category {
+  color: rgba(255,255,255,.75);
+}
+.cmd-result-question {
+  font-size: 14px;
+  font-weight: 600;
+}
+.cmd-result-category {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.cmd-empty {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     追従ヘッダー
+     ============================================================ -->
+<header id="site-header">
+  <div class="header-inner">
+    <a href="https://www.ibm.com/products/bob" target="_blank" rel="noopener" class="header-logo-link" aria-label="IBM Bob 製品ページ">
+      <img src="bob.svg" alt="IBM Bob" class="header-logo">
+    </a>
+    <div class="header-content">
+      <h1 class="header-title"><span>Bob</span> よくある質問</h1>
+      <p class="header-subtitle">IBM Bob に関するよくある質問と回答をまとめています。</p>
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="search" id="searchInput" placeholder="キーワードで検索…" autocomplete="off" aria-label="FAQ を検索">
+      </div>
+    </div>
+    <button id="theme-toggle" aria-label="テーマを切り替える" title="ダーク/ライト切替">🌙</button>
+  </div>
+</header>
+
+<!-- ============================================================
+     追従タブバー
+     ============================================================ -->
+<div id="tab-bar" role="tablist" aria-label="FAQカテゴリ">
+  <div class="tab-list">
+    <button class="tab-btn active" data-tab="general"   role="tab" aria-selected="true"  aria-controls="cat-general">一般</button>
+    <button class="tab-btn"         data-tab="usage"    role="tab" aria-selected="false" aria-controls="cat-usage">使い方</button>
+    <button class="tab-btn"         data-tab="advanced" role="tab" aria-selected="false" aria-controls="cat-advanced">高度な機能</button>
+    <button class="tab-btn"         data-tab="trouble"  role="tab" aria-selected="false" aria-controls="cat-trouble">トラブルシューティング</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     メインコンテンツ
+     ============================================================ -->
+<main>
+
+  <!-- 検索中バナー -->
+  <div id="search-banner" aria-live="polite">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    「<strong id="search-query-label"></strong>」の検索結果
+  </div>
+
+  <!-- 一般 -->
+  <section class="category-section active" id="cat-general" role="tabpanel" aria-labelledby="tab-general">
+    <p class="category-label">一般</p>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question">Bob とは何ですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob は AI を活用したコーディングアシスタントです。コードの作成・リファクタリング・各種タスクの実行をサポートします。カスタムモードや指示によって機能を拡張することもできます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob はどのように動作しますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob は大規模言語モデル（LLM）を使ってリクエストを理解し、アクションに変換します。主な機能は次のとおりです：</p>
+          <ul>
+            <li>プロジェクト内のファイルの読み書き</li>
+            <li>ターミナルでのコマンド実行</li>
+            <li>インターネットの閲覧（有効化時）</li>
+            <li>MCP（Model Context Protocol）を通じた外部ツールの利用</li>
+          </ul>
+          <p>チャットインターフェースから指示を入力し、Bob が提案するアクションを確認・承認して操作します。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob でできることは何ですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob はさまざまなコーディングタスクを支援します：</p>
+          <ul>
+            <li>自然言語の説明からコードを生成する</li>
+            <li>既存コードのリファクタリング</li>
+            <li>バグ修正</li>
+            <li>ドキュメントの作成</li>
+            <li>コードの説明</li>
+            <li>コードベースへの質問への回答</li>
+            <li>繰り返し作業の自動化</li>
+            <li>新しいファイルやプロジェクトの作成</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob で処理してはいけないデータはありますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>以下のデータ種別は Bob で処理しないでください：</p>
+          <ul>
+            <li>SPI（機密個人情報）</li>
+            <li>PHI（個人医療情報）</li>
+            <li>輸出規制対象データ（ITAR、APP など）</li>
+            <li>規制対象の金融データ（銀行口座番号、PAN、非公開財務情報など）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob を使うリスクはありますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob は強力なツールです。責任を持って使用してください：</p>
+          <ul>
+            <li><strong>Bob はミスをする場合があります。</strong> 承認する前に必ず変更内容を確認してください。</li>
+            <li><strong>Bob はコマンドを実行できます。</strong> 自動承認を使用している場合は特に注意が必要です。</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="category-section" id="cat-usage" role="tabpanel" aria-labelledby="tab-usage">
+    <p class="category-label">使い方</p>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question">新しいタスクを始めるにはどうすればよいですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob パネルを開き、チャットボックスにタスクを入力してください。何をしたいかを明確・具体的に記述すると、より正確な結果が得られます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">モードを切り替えるにはどうすればよいですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>チャット入力欄のドロップダウンメニューから別のモードを選択するか、<code>/</code> コマンドを使って特定のモードに切り替えることができます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">ツールとは何ですか？どう使いますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>ツールは Bob がシステムと対話するための仕組みです。Bob はタスクに応じて適切なツールを自動的に選択・使用します。ユーザーが直接ツールを呼び出す必要はありません。各ツール使用時に承認または拒否のプロンプトが表示されます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">コンテキストメンションとは何ですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>コンテキストメンションは、ファイル・フォルダ・問題など、プロジェクトの特定の情報を Bob に伝える方法です。<code>@</code> 記号の後にアイテムを指定します（例：<code>@/src/file.ts</code>、<code>@problems</code>）。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob はターミナルでコマンドを実行できますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>はい、Bob はコマンドを実行できます。コマンドの自動承認を有効にしていない限り、実行前に承認プロンプトが表示されます。コマンドの自動承認には十分注意してください。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob にフィードバックを送るにはどうすればよいですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob が提案するアクションを承認または拒否することでフィードバックできます。フィードバックフィールドを使って追加のコメントを送ることもできます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob の動作をカスタマイズできますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>はい、いくつかの方法でカスタマイズできます：</p>
+          <ul>
+            <li><strong>カスタム指示：</strong> すべてのモードに適用される全般的な指示や、モード固有の指示を設定できます。</li>
+            <li><strong>カスタムモード：</strong> 独自のプロンプトとツール権限を持つモードを作成できます。</li>
+            <li><strong>Bob ルール：</strong> プロジェクトルートの <code>.bob/rules/</code> フォルダにマークダウンのルールファイルを作成して追加ガイドラインを提供できます。</li>
+            <li><strong>設定：</strong> 自動承認・差分編集などの各種設定を調整できます。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">自動承認の設定はありますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>はい、Bob にはアクションを自動的に承認するいくつかの設定があります。有効にすると、確認プロンプトなしでアクションが実行されます。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 高度な機能 -->
+  <section class="category-section" id="cat-advanced" role="tabpanel" aria-labelledby="tab-advanced">
+    <p class="category-label">高度な機能</p>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question">MCP（Model Context Protocol）とは何ですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>MCP は Bob が外部サーバーと通信するためのプロトコルです。カスタムツールやリソースを追加することで Bob の機能を拡張できます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">独自の MCP サーバーを作成できますか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>はい、独自の MCP サーバーを作成して Bob にカスタム機能を追加することができます。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- トラブルシューティング -->
+  <section class="category-section" id="cat-trouble" role="tabpanel" aria-labelledby="tab-trouble">
+    <!-- 対話型トラブルシューティングウィザード -->
+    <div id="ts-wizard">
+      <div id="ts-card">
+        <p id="ts-question" class="ts-question-text"></p>
+        <div id="ts-choices" class="ts-choices"></div>
+        <div id="ts-solution" class="ts-solution" hidden></div>
+        <button id="ts-reset" class="ts-reset-btn" hidden>↩ 最初からやり直す</button>
+      </div>
+    </div>
+    <p class="category-label">トラブルシューティング</p>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question">Bob が応答しません。どうすればよいですか？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>以下をご確認ください：</p>
+          <ul>
+            <li>API キーが正しく、有効期限が切れていないか確認する</li>
+            <li>インターネット接続を確認する</li>
+            <li>VS Code を再起動する</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Bob が意図しない変更を加えました。元に戻すには？<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-answer">
+          <p>Bob は VS Code 組み込みのファイル編集機能を使用しています。標準の「元に戻す」コマンド（<code>Ctrl + Z</code> / <code>Cmd + Z</code>）で変更を元に戻すことができます。また、チェックポイント機能を使ってファイルへの変更を特定時点まで戻すことも可能です。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ヒット0件 -->
+  <div id="no-results" role="alert">
+    <p>「<span id="no-results-query"></span>」に該当する質問が見つかりませんでした。</p>
+  </div>
+
+</main>
+
+<!-- コマンドパレット -->
+<div id="cmd-overlay" class="cmd-overlay" aria-hidden="true"></div>
+<div id="cmd-palette" class="cmd-palette" role="dialog" aria-modal="true" aria-label="コマンドパレット" hidden>
+  <div class="cmd-header">
+    <svg class="cmd-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="cmd-input" class="cmd-input" placeholder="FAQ を検索… (↑↓ で移動、Enter で開く)" autocomplete="off" aria-label="FAQ を検索">
+    <kbd class="cmd-esc-hint">ESC</kbd>
+  </div>
+  <ul id="cmd-results" class="cmd-results" role="listbox" aria-label="検索結果"></ul>
+  <p id="cmd-empty" class="cmd-empty" hidden>該当する FAQ が見つかりませんでした</p>
+</div>
+
+<footer>Made with IBM Bob</footer>
+
+<script>
+  /* ============================================================
+     ダークテーマ切替
+     ============================================================ */
+  (function() {
+    var root = document.documentElement;
+    var btn  = document.getElementById('theme-toggle');
+    var STORAGE_KEY = 'faq-theme';
+
+    function applyTheme(dark) {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      btn.textContent = dark ? '☀️' : '🌙';
+      btn.setAttribute('aria-label', dark ? 'ライトテーマに切り替える' : 'ダークテーマに切り替える');
+    }
+
+    // 初期テーマ: localStorage → OS設定 の順で決定
+    var stored = localStorage.getItem(STORAGE_KEY);
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = stored !== null ? stored === 'dark' : prefersDark;
+    applyTheme(isDark);
+
+    btn.addEventListener('click', function() {
+      isDark = root.getAttribute('data-theme') !== 'dark';
+      applyTheme(isDark);
+      localStorage.setItem(STORAGE_KEY, isDark ? 'dark' : 'light');
+    });
+
+    // OS 設定の変更を監視
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (localStorage.getItem(STORAGE_KEY) === null) {
+        isDark = e.matches;
+        applyTheme(isDark);
+      }
+    });
+  })();
+
+  /* ============================================================
+     ヘッダー高さに合わせてタブバーの top を動的に設定
+     ============================================================ */
+  function adjustTabTop() {
+    var h = document.getElementById('site-header').offsetHeight;
+    document.getElementById('tab-bar').style.top = h + 'px';
+  }
+  adjustTabTop();
+  window.addEventListener('resize', adjustTabTop);
+
+  /* ============================================================
+     タブ切り替え
+     ============================================================ */
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var sections = document.querySelectorAll('.category-section');
+
+  function activateTab(tabId) {
+    tabBtns.forEach(function(btn) {
+      var active = btn.dataset.tab === tabId;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    sections.forEach(function(sec) {
+      sec.classList.toggle('active', sec.id === 'cat-' + tabId);
+    });
+  }
+
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      activateTab(this.dataset.tab);
+    });
+  });
+
+  /* ============================================================
+     アコーディオン
+     ============================================================ */
+  document.querySelectorAll('.faq-question').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = this.closest('.faq-item');
+      var isOpen = item.classList.contains('open');
+
+      // 同セクション内で開いているものを閉じる
+      var section = item.closest('.category-section');
+      section.querySelectorAll('.faq-item.open').forEach(function(el) {
+        el.classList.remove('open');
+      });
+
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  /* ============================================================
+     キーワード検索（全カテゴリ横断）
+     ============================================================ */
+  var searchInput   = document.getElementById('searchInput');
+  var searchBanner  = document.getElementById('search-banner');
+  var searchLabel   = document.getElementById('search-query-label');
+  var noResults     = document.getElementById('no-results');
+  var noResultsQ    = document.getElementById('no-results-query');
+  var tabBar        = document.getElementById('tab-bar');
+  var allItems      = document.querySelectorAll('.faq-item');
+
+  searchInput.addEventListener('input', function() {
+    var query = this.value.trim();
+
+    if (!query) {
+      // 検索クリア → タブ表示に戻す
+      tabBar.style.display = '';
+      searchBanner.classList.remove('visible');
+      noResults.classList.remove('visible');
+
+      // 全アイテム表示 & 開閉リセット
+      allItems.forEach(function(item) {
+        item.classList.remove('hidden', 'open');
+      });
+
+      // アクティブなタブのセクションのみ表示
+      var activeTab = document.querySelector('.tab-btn.active');
+      if (activeTab) activateTab(activeTab.dataset.tab);
+      return;
+    }
+
+    // 検索中: タブ非表示、全セクション表示
+    tabBar.style.display = 'none';
+    sections.forEach(function(sec) { sec.classList.add('active'); });
+    searchBanner.classList.add('visible');
+    searchLabel.textContent = query;
+
+    var lq = query.toLowerCase();
+    var hitCount = 0;
+
+    allItems.forEach(function(item) {
+      var text = item.textContent.toLowerCase();
+      if (text.includes(lq)) {
+        item.classList.remove('hidden');
+        hitCount++;
+      } else {
+        item.classList.add('hidden', 'open');
+        item.classList.remove('open');
+      }
+    });
+
+    // カテゴリ内が全部隠れていたらラベルも非表示
+    sections.forEach(function(sec) {
+      var visible = sec.querySelectorAll('.faq-item:not(.hidden)').length > 0;
+      sec.style.display = visible ? '' : 'none';
+    });
+
+    if (hitCount === 0) {
+      noResults.classList.add('visible');
+      noResultsQ.textContent = query;
+    } else {
+      noResults.classList.remove('visible');
+    }
+  });
+
+  /* ============================================================
+     対話型トラブルシューティングウィザード
+     ============================================================ */
+  (function() {
+    var TREE = {
+      id: 'root',
+      q: '🔍 何が問題ですか？',
+      choices: [
+        {
+          label: 'Bob が応答しない',
+          next: {
+            id: 'no-response',
+            q: 'API キーの設定を確認しましたか？',
+            choices: [
+              {
+                label: 'まだ確認していない',
+                solution: 'Bob の設定画面（⚙️）を開き、API キーが正しく入力されているか確認してください。期限切れの場合は再発行が必要です。'
+              },
+              {
+                label: '確認したが改善しない',
+                solution: 'VS Code を完全に再起動してください。それでも改善しない場合は、インターネット接続を確認し、ファイアウォール設定も見直してください。'
+              }
+            ]
+          }
+        },
+        {
+          label: 'Bob が意図しない変更をした',
+          solution: '<strong>Ctrl + Z</strong>（Mac: <strong>Cmd + Z</strong>）で変更を元に戻せます。複数ファイルにわたる変更には、Bob のチェックポイント機能を使って特定時点まで一括で巻き戻すことができます。'
+        },
+        {
+          label: 'MCP サーバーに接続できない',
+          solution: 'MCP の設定ファイルを確認し、サーバーの URL・ポート・認証情報が正しいかチェックしてください。サーバー自体が起動しているかも確認してください。'
+        }
+      ]
+    };
+
+    var tsQuestion = document.getElementById('ts-question');
+    var tsChoices  = document.getElementById('ts-choices');
+    var tsSolution = document.getElementById('ts-solution');
+    var tsReset    = document.getElementById('ts-reset');
+
+    function render(node) {
+      tsSolution.hidden = true;
+      tsSolution.innerHTML = '';
+      tsReset.hidden = true;
+      tsQuestion.textContent = node.q;
+      tsChoices.innerHTML = '';
+
+      node.choices.forEach(function(choice) {
+        var btn = document.createElement('button');
+        btn.className = 'ts-choice-btn';
+        btn.textContent = choice.label;
+        btn.addEventListener('click', function() {
+          if (choice.solution) {
+            tsQuestion.textContent = '✅ 解決策';
+            tsChoices.innerHTML = '';
+            tsSolution.innerHTML = choice.solution;
+            tsSolution.hidden = false;
+            tsReset.hidden = false;
+          } else if (choice.next) {
+            render(choice.next);
+            tsReset.hidden = false;
+          }
+        });
+        tsChoices.appendChild(btn);
+      });
+    }
+
+    render(TREE);
+
+    tsReset.addEventListener('click', function() {
+      render(TREE);
+    });
+  })();
+
+  /* ============================================================
+     コマンドパレット
+     ============================================================ */
+  (function() {
+    var overlay    = document.getElementById('cmd-overlay');
+    var palette    = document.getElementById('cmd-palette');
+    var cmdInput   = document.getElementById('cmd-input');
+    var cmdResults = document.getElementById('cmd-results');
+    var cmdEmpty   = document.getElementById('cmd-empty');
+    var activeIdx  = -1;
+
+    // FAQ データを DOM から収集
+    var faqData = [];
+    document.querySelectorAll('.category-section').forEach(function(sec) {
+      var tabId    = sec.id.replace('cat-', '');
+      var labelEl  = sec.querySelector('.category-label');
+      var category = labelEl ? labelEl.textContent.trim() : tabId;
+      sec.querySelectorAll('.faq-item').forEach(function(item) {
+        var qEl = item.querySelector('.faq-question');
+        if (!qEl) return;
+        // faq-icon span のテキストを除外
+        var clone = qEl.cloneNode(true);
+        var icon = clone.querySelector('.faq-icon');
+        if (icon) icon.remove();
+        faqData.push({
+          question: clone.textContent.trim(),
+          tabId:    tabId,
+          category: category,
+          item:     item
+        });
+      });
+    });
+
+    function openPalette() {
+      overlay.classList.add('open');
+      palette.removeAttribute('hidden');
+      overlay.setAttribute('aria-hidden', 'false');
+      cmdInput.value = '';
+      renderResults('');
+      cmdInput.focus();
+    }
+
+    function closePalette() {
+      overlay.classList.remove('open');
+      palette.setAttribute('hidden', '');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function renderResults(query) {
+      cmdResults.innerHTML = '';
+      activeIdx = -1;
+      var lq = query.toLowerCase();
+      var hits = query
+        ? faqData.filter(function(d) { return d.question.toLowerCase().includes(lq); })
+        : faqData;
+
+      cmdEmpty.hidden = hits.length > 0;
+
+      hits.forEach(function(d, i) {
+        var li = document.createElement('li');
+        li.className = 'cmd-result-item';
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', 'false');
+        li.innerHTML =
+          '<div class="cmd-result-question">' + escHtml(d.question) + '</div>' +
+          '<div class="cmd-result-category">' + escHtml(d.category) + '</div>';
+        li.addEventListener('click', function() { selectItem(d); });
+        li.addEventListener('mouseenter', function() { setActive(i); });
+        cmdResults.appendChild(li);
+      });
+
+      // hits を外部スコープで参照できるよう保持
+      cmdResults._hits = hits;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function setActive(idx) {
+      var items = cmdResults.querySelectorAll('.cmd-result-item');
+      items.forEach(function(el, i) {
+        el.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+      });
+      activeIdx = idx;
+    }
+
+    function selectItem(d) {
+      closePalette();
+      // タブ切替
+      activateTab(d.tabId);
+      // DOM にスクロール & アコーディオンを開く
+      setTimeout(function() {
+        // 同セクション内の open を閉じる
+        var sec = d.item.closest('.category-section');
+        sec.querySelectorAll('.faq-item.open').forEach(function(el) { el.classList.remove('open'); });
+        d.item.classList.add('open');
+        d.item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    }
+
+    cmdInput.addEventListener('input', function() {
+      renderResults(this.value.trim());
+    });
+
+    cmdInput.addEventListener('keydown', function(e) {
+      var items = cmdResults.querySelectorAll('.cmd-result-item');
+      var hits  = cmdResults._hits || [];
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActive(Math.min(activeIdx + 1, items.length - 1));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(Math.max(activeIdx - 1, 0));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIdx >= 0 && hits[activeIdx]) selectItem(hits[activeIdx]);
+      } else if (e.key === 'Escape') {
+        closePalette();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        if (palette.hasAttribute('hidden')) { openPalette(); } else { closePalette(); }
+      }
+      if (e.key === 'Escape' && !palette.hasAttribute('hidden')) { closePalette(); }
+    });
+
+    overlay.addEventListener('click', closePalette);
+  })();
+
+</script>
+
+</body>
+</html>
